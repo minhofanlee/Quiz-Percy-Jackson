@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Qué cabaña de Percy Jackson eres?</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background: url('https://i.imgur.com/BQKZzWp.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      padding: 20px;
+    }
+    .quiz-container {
+      max-width: 700px;
+      margin: auto;
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      border-radius: 15px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    .options label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.1);
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 5px;
+    }
+    .options img {
+      width: 40px;
+      height: 40px;
+      border-radius: 5px;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #ffd700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .result {
+      font-size: 1.3em;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .cabana-info {
+      margin-top: 30px;
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+    .cabana-info img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container" id="quizContainer">
+    <h1>¿Qué cabaña de Percy Jackson eres?</h1>
+    <form id="quizForm"></form>
+    <button onclick="calculateResult()">Ver resultado</button>
+    <div class="result" id="result"></div>
+    <div class="cabana-info" id="cabanaInfo"></div>
+    <button onclick="saveResultAsImage()">Guardar resultado como imagen</button>
+  </div>  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>  <script>
+    const cabanas = {
+      "Zeus": { descripcion: "Hijos del dios del rayo y el cielo...", personaje: "Thalia Grace", imagen: "https://i.imgur.com/7FyKk3k.jpg" },
+      "Poseidón": { descripcion: "Amos del mar...", personaje: "Percy Jackson", imagen: "https://i.imgur.com/VF4zSY6.jpg" },
+      "Atenea": { descripcion: "Sabios y lógicos...", personaje: "Annabeth Chase", imagen: "https://i.imgur.com/3gxEIBY.jpg" },
+      "Apolo": { descripcion: "Artistas y sanadores...", personaje: "Will Solace", imagen: "https://i.imgur.com/vmS7hIP.jpg" },
+      "Deméter": { descripcion: "Naturaleza y vida...", personaje: "Katie Gardner", imagen: "https://i.imgur.com/UVNsVvz.jpg" },
+      "Hipnos": { descripcion: "Soñadores y tranquilos...", personaje: "Clovis", imagen: "https://i.imgur.com/Xp0B6Nz.jpg" },
+      "Nike": { descripcion: "Competitivos y valientes...", personaje: "-", imagen: "https://i.imgur.com/U0vEHo4.jpg" },
+      "Hefesto": { descripcion: "Inventores y fuertes...", personaje: "Leo Valdez", imagen: "https://i.imgur.com/fGvdpY9.jpg" },
+      "Afrodita": { descripcion: "Belleza y amor...", personaje: "Piper McLean", imagen: "https://i.imgur.com/Yeh0NeH.jpg" },
+      "Hermes": { descripcion: "Versátiles y astutos...", personaje: "Luke Castellan", imagen: "https://i.imgur.com/SjO8Smu.jpg" },
+      "Ares": { descripcion: "Valientes y fuertes...", personaje: "Clarisse La Rue", imagen: "https://i.imgur.com/z5gl1aF.jpg" },
+      "Perséfone": { descripcion: "Misteriosos y profundos...", personaje: "-", imagen: "https://i.imgur.com/IuEnyo6.jpg" }
+    };
+
+    const optionsImages = {
+      "Zeus": "https://i.imgur.com/yWG0h7K.png",
+      "Poseidón": "https://i.imgur.com/LZNoevn.png",
+      "Atenea": "https://i.imgur.com/IBwV7g6.png",
+      "Apolo": "https://i.imgur.com/Bd7b5mj.png",
+      "Deméter": "https://i.imgur.com/IQCPd3k.png",
+      "Hipnos": "https://i.imgur.com/kbTwBBo.png",
+      "Nike": "https://i.imgur.com/5vcy2xM.png",
+      "Hefesto": "https://i.imgur.com/jzLV2p6.png",
+      "Afrodita": "https://i.imgur.com/WshXifh.png",
+      "Hermes": "https://i.imgur.com/58jsuQr.png",
+      "Ares": "https://i.imgur.com/kB0xLVx.png",
+      "Perséfone": "https://i.imgur.com/BQ2zJVe.png"
+    };
+
+    const questions = [...Array(10).keys()].map((_, i) => ({
+      q: `Pregunta ${i + 1}`,
+      a: Object.keys(cabanas)
+    }));
+
+    const quizForm = document.getElementById('quizForm');
+    questions.forEach((q, i) => {
+      const div = document.createElement('div');
+      div.classList.add('question');
+      div.innerHTML = `<h2>${i + 1}. ${q.q}</h2><div class='options'>`;
+      q.a.forEach(cabana => {
+        const img = optionsImages[cabana] || '';
+        div.innerHTML += `
+          <label>
+            <input type="radio" name="q${i}" value="${cabana}" required>
+            <img src="${img}" alt="${cabana}"> ${cabana}
+          </label>`;
+      });
+      div.innerHTML += `</div>`;
+      quizForm.appendChild(div);
+    });
+
+    function calculateResult() {
+      const formData = new FormData(quizForm);
+      const scores = {};
+      for (let value of formData.values()) {
+        scores[value] = (scores[value] || 0) + 1;
+      }
+      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      const topCabana = sorted[0][0];
+      const resultText = sorted.length ? `¡Tu destino está sellado: <strong>${topCabana}</strong>!` : 'Por favor responde todas las preguntas.';
+      document.getElementById('result').innerHTML = resultText;
+
+      if (cabanas[topCabana]) {
+        const info = cabanas[topCabana];
+        document.getElementById('cabanaInfo').innerHTML = `
+          <h3>Descripción:</h3>
+          <p>${info.descripcion}</p>
+          <p><strong>Personaje famoso:</strong> ${info.personaje}</p>
+          <img src="${info.imagen}" alt="Cabaña de ${topCabana}">
+        `;
+      } else {
+        document.getElementById('cabanaInfo').innerHTML = '';
+      }
+    }
+
+    function saveResultAsImage() {
+      const quizContainer = document.getElementById('quizContainer');
+      html2canvas(quizContainer).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'resultado_cabana_percyjackson.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  </script></body>
+</html>
